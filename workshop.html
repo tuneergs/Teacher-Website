@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" type="text/css" href="main.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <style>
+            #slider {
+                position: relative;
+                top: 20px;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                     appearance: none;
+                height:10px;
+                width: 500px;
+                width: 75%;
+                max-width: 500px;
+                border-radius: 5px;
+                background-color: #c41e3a;
+                outline:none;
+            }
+
+            #slider_container {
+                opacity: 0.8;
+            }
+
+            #slider_container:hover {
+                opacity: 1;
+            }
+
+            #slider::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                background: white;
+                cursor: pointer;
+                border: 10px #c41e3a solid;
+            }
+
+            #slider_val {
+                background-color: #c41e3a;
+                color: white;
+                position: relative;
+                top: 20px;
+                padding:5px;
+                font-size: 20px;
+                text-align:center;
+                width:50px;
+                border: 1px darkred solid;
+            }
+
+            #body{
+                position: relative;
+                margin-top: 30px;
+                padding: 10px;
+            }
+
+            #body>div {
+                position: relative;
+            }
+
+            #left_side {
+                left: 3%;
+                width: 45%; /* *** */
+                float: left;
+                margin: auto;
+                padding:20px;
+            }
+
+            #right_side {
+                right: 7%;
+                width: 45%; /* *** */
+                float: right; 
+                margin: auto;
+                padding: 10px;
+            }
+
+            .container {
+                position: relative;
+                padding: 5px;
+                margin: auto;
+                color: #c41e3a;
+                border: 1px groove black;
+                margin-bottom: 10px;
+            }
+
+            #left_side .container {
+                width: 450px;
+                color: black;
+                background-color: silver;
+            }
+            #right_side .container {
+                width: 600px;
+                background-color: #c41e3a; /* Cardinal */
+            }
+
+            .container .summerImg {
+                width: 500px;
+            }
+
+            .container .imgP {
+                color: white;
+                font-family: inherit;
+                padding: 5px;
+                font-size: 20px;
+                margin-bottom: 20px;
+                margin-top: 10px;
+                line-height: 1.35;
+            }
+
+            .container .heading {
+                color: white;
+                font-size: 30px;
+            }
+        </style>
+        <title>Mr. Compton</title>
+    </head>
+    <body>
+        <div class="header">Mr. Compton's Website</div>
+        <div class="navigation">
+            <a href="index.html">Home</a>
+            <a href="workshop.html">AP Calculus Workshop</a>
+            <span id="course_drop">
+                <button id="courses">Courses</button>
+                <div id="dropdown">
+                    <a href="classes.html?ab" class="class_sub">AP Calculus AB</a>
+                    <a href="classes.html?bc" class="class_sub">AP Calculus BC</a>
+                    <a href="classes.html?cs" class="class_sub">AP Computer Science A </a>
+                </div>
+            </span>
+        </div>
+        <div id="slider_container">
+            <input id="slider" type="range" onchange="update()">
+            <input id="slider_val" type="text" readonly>
+        </div>
+        <div id="body">
+            <div id="left_side">
+<!-- TEMPLATE:
+                <div class="container">
+                    <p class="title">2017 College Board AP Calculus AB 1-Day</p>
+                    <p class="school">P.O. Berry Acad of Technology</p>
+                    <p class="location">Charlotte, NC</p>
+                    <p class="date">October 30, 2017</p>
+                </div>
+-->
+            </div>
+            <div id="right_side">
+<!-- TEMPLATE:
+                <div class="container">
+                    <img src="img/summers/2003/Louisville2003.jpg" class="summerImg">
+                    <p class="imgP">I presented a AP Summer Institute Calculus AB Workshop from June 16-19, 2003 at Western Magnet High School in Louisville, Kentucky.  These are the seven wonderful teachers that participated in my first weeklong workshop.</p>
+                </div>
+-->
+            </div>
+        </div>
+        <script>
+            var slider = document.getElementById("slider"),
+                slider_text = document.getElementById("slider_val");
+            let workshopData, summerData, sizeDif = 1200, columns;
+            
+            slider.addEventListener("input", function(){
+                slider_text.value = slider.value;
+            })
+            
+            function gatherData() {
+                const x = $.getJSON("JSON/workshops.json", function(data){
+                    workshopData = data;
+                });
+                const y = $.getJSON("JSON/summers.json", function(data){
+                    summerData = data;
+                });
+                return $.when(x, y);
+            }
+
+            gatherData().done(function(workshopData, summerData) {
+//                console.log("workshop data: ", workshopData);
+//                console.log("summer data: ", summerData);
+                setMax();
+                columns = $(window).width() > sizeDif;
+                update();
+            });
+            
+            function setMax(){
+                var maxYear = 2000, minYear = 2020, date;
+                $.each(workshopData, function(key, stuff){
+                    date = stuff.date;
+                    date = date.substring(date.length - 4, date.length);
+                    date = parseInt(date);
+                    maxYear = date > maxYear ? date : maxYear;
+                    minYear = date < minYear ? date : minYear;
+                });
+                $.each(summerData, function(key, stuff){
+                    date = stuff.year;
+                    maxYear = date > maxYear ? date : maxYear;
+                    minYear = date < minYear ? date : minYear;
+                });
+                $("#slider").attr("max", maxYear);
+                $("#slider").attr("min", minYear);
+                slider.value = 2010;
+                slider_text.value = 2010;
+            }
+            
+            function update(){
+                $("#left_side").html("");
+                $("#right_side").html("");
+                let date, dataYear,
+                    year = slider.value;
+                var keyArray = [], summer = false;
+                $.each(workshopData, function(key, stuff){
+                    date = stuff.date;
+                    date = date.substring(date.length - 4, date.length);
+                    dataYear = parseInt(date);
+                    if(dataYear == year){
+                        keyArray.push(key);
+                    }
+                });
+                outputWork(keyArray);
+                $.each(summerData, function(key, stuff){
+                    dataYear = stuff.year;
+                    if(dataYear == year){
+                        outputSummer(key);
+                        summer = true;
+                    }
+                    unfinished = false;
+                });
+                finalize(keyArray, summer);
+            }
+            
+            function outputWork(list){
+                var divTag, title,  school, location, date;
+                for(var i = 0; i < list.length; i++){
+                    var j = list[i];
+                    divTag = $("<div/>").addClass("container");
+                    title = $("<p/>").addClass("title").text(workshopData[j].title);
+                    school = $("<p/>").addClass("school").text(workshopData[j].school);
+                    location = $("<p/>").addClass("location").text(workshopData[j].location);
+                    date = $("<p/>").addClass("date").text(workshopData[j].date);
+                    divTag
+                        .append(title)
+                        .append(school)
+                        .append(location)
+                        .append(date);
+                    $("#left_side").append(divTag);
+                }
+            }
+            
+            function outputSummer(key){
+                var divTag, imgSrc, img, subtitle, head, heading,
+                    arrez = summerData[key];
+                heading = $("<h2/>")
+                    .addClass("heading")
+                    .text("Summer " + slider.value);
+                head = $("<div/>")
+                    .addClass("container")
+                    .append(heading);
+                $("#right_side").append(head);
+                for(var i = 0; i < arrez.pics.length; i++){
+                    divTag = $("<div/>").addClass("container");
+                    subtitle = $("<p/>")
+                        .addClass("imgP")
+                        .text(arrez.subtitles[i]);
+                    img = $("<img/>")
+                        .addClass("summerImg")
+                        .attr("src", "/img/summers/" + slider.value + "/" + arrez.pics[i])
+                        .attr("alt", arrez.pics[i])
+                    if(arrez.pics[i].length == 0){
+                        img = $("<img/>")
+                            .addClass("summerImg")
+                            .attr("src", "img/no_image.png")
+                            .attr("alt", "Image missing.")
+                    }
+                    divTag.append(img);
+                    divTag.append(subtitle);
+                    $("#right_side").append(divTag);
+                }
+            }
+            
+            function finalize(keyList, summer){
+//                if(keyList.length == 0){
+//                    $("#right_side").css("float", "none");
+//                } else {
+//                    $("#right_side").css("float", "right");
+//                }
+//                if(!summer){
+//                    $("#left_side").css("float", "none");
+//                } else {
+//                    $("#left_side").css("float", "left");
+//                }
+                if(!summer){
+                    $("#right_side").hide();
+                } else {
+                    $("#right_side").show();
+                }
+                if(keyList.length == 0) {
+                    $("#left_side").hide();
+                } else {
+                    $("#left_side").show();
+                }
+                if(columns){
+                    if(keyList.length == 0 || !summer){
+                        setAlone();
+                    } else {
+                        setBack();
+                    }
+                } else {
+                    setAlone();
+                }
+                
+            }
+            
+            function setAlone(){
+                $("#right_side").css({"float": "none", "right": "0%"});
+                $("#left_side").css({"float": "none", "left": "0%"});
+            }
+            
+            function setBack(){
+                $("#right_side").css({"float": "right", "right": "7%"});
+                $("#left_side").css({"float": "left", "left": "3%"});
+            }
+            
+            $(window).on("resize", function(){
+                let size = $(window).width();
+                if(size > sizeDif && !columns){
+                    columns = true;
+                    update();
+                } else if (size < sizeDif && columns) {
+                    columns = false;
+                    update();
+                }                
+            });
+        </script>
+        
+    </body>
+</html>
+        
