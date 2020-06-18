@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" type="text/css" href="main.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <title>Mr. Compton</title>
+    </head>
+    <body>
+        <div class="header">Mr. Compton's Website</div>
+        <div class="navigation">
+            <a href="index.html">Home</a>
+            <a href="workshop.html">AP Calculus Workshop</a>
+            <span id="course_drop">
+                <button id="courses">Courses</button>
+                <div id="dropdown">
+                    <a href="classes.html?ab" class="class_sub">AP Calculus AB</a>
+                    <a href="classes.html?bc" class="class_sub">AP Calculus BC</a>
+                    <a href="classes.html?cs" class="class_sub">AP Computer Science A </a>
+                </div>
+            </span>
+        </div>
+        
+        <div class="class_type">
+<!-- TEMPLATE:
+            <h1 class="class_head">AP Calculus BC</h1>
+            <img src='img/all_classes/bc2019.jpg'>
+            <p>2019-2020 AP Calculus BC: 1st row: Dan McGuire, Aden Barton, Pete Rowlett, Matt Kaplan. 2nd row: John Hyde, William Lummus, Thomas Miller, Ross Walker, Matt Hawkins.</p>
+            <div class="container">
+                <a href="links/bc/assign119.pdf" target="_blank">AP Calculus BC High-5 Club</a>
+                <a href="links/bc/assign119.pdf" target="_blank">AP Calculus BC High-5 Club</a>
+                <a href="links/bc/assign119.pdf" target="_blank">AP Calculus BC High-5 Club</a>
+            </div>
+-->
+        </div>
+        
+        
+        <script>
+            let clas = window.location.search.substring(1), key, classData;
+            
+            switch(clas) {
+                case "ab":
+                    key = 0;
+                    $("title").text("Calc AB");
+                    break;
+                case "bc":
+                    key = 1;
+                    $("title").text("Calc BC");
+                    break;
+                case "cs":
+                    key = 2;
+                    $("title").text("CS A");
+                    break;
+                default:
+                    window.location.replace("index.html");
+                    break;
+                }
+            
+            $.getJSON("JSON/classes.json", function(data){
+                    classData = data;
+            }).done(function(classData) {
+                setVals();
+            });
+            
+            function tab(str){
+                let arr = ["pdf", "zip", "ppt", "pptx"], 
+                    length = str.length, sub, val;
+                for(val of arr){
+                    sub = str.substring(length - val.length, length);
+                    if(sub == val){
+                       return true;
+                    }
+                }
+                return false;
+            }
+            
+            function setVals(){
+                var div,
+                    vals = classData[key],
+                    links = vals.links;
+                
+                div = $("<h1/>").addClass("class_head").text(vals.title);
+                $(".class_type").append(div);
+                $.each(vals.img, function(key, source){
+                    let image;
+                    if(source.length != 0){
+                        image = $("<img/>").attr("alt", source)
+                                           .attr("src", "img/all_classes/" + source);
+                    } else {
+                        image = $("<img/>").attr("alt", "No image available.")
+                                           .attr("src", "img/no_image.png");
+                    }
+                    let cap = $("<p/>").text(vals.caption[key]);
+                    $(".class_type").append(image)
+                                    .append(cap);
+                });
+                
+                div = $("<div/>").addClass("container");
+                $.each(links, function(key, stuff){
+                    let src = tab(stuff.source) ? ("links/" + clas + "/" + stuff.source) : stuff.source, // sets up source string
+                        link = $("<a\>").attr("target", "_blank")
+                                    .attr("href", src)
+                                    .text(stuff.name);
+                    div.append(link);
+                });
+                $(".class_type").append(div);
+            }
+            
+            function outputWork(list){
+                var divTag, title,  school, location, date;
+                for(var i = 0; i < list.length; i++){
+                    var j = list[i];
+                    divTag = $("<div/>").addClass("container");
+                    title = $("<p/>").addClass("title").text(workshopData[j].title);
+                    school = $("<p/>").addClass("school").text(workshopData[j].school);
+                    location = $("<p/>").addClass("location").text(workshopData[j].location);
+                    date = $("<p/>").addClass("date").text(workshopData[j].date);
+                    divTag
+                        .append(title)
+                        .append(school)
+                        .append(location)
+                        .append(date);
+                    $("#left_side").append(divTag);
+                }
+            }
+        </script>
+        
+    </body>
+</html>
+        

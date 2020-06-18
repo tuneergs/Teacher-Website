@@ -1,0 +1,41 @@
+workshops.json
+
+    {
+        "title": "",
+        "school": "",
+        "location": "",
+        "date": ""
+    },
+    {
+        "title": "",
+        "school": "",
+        "location": "",
+        "date": ""
+    }
+
+
+
+summers.json
+
+    {
+        "year": "",
+        "pics": ["", 
+                 "", 
+                 ""],
+        "subtitles": ["", 
+                      "", 
+                      ""]
+    },
+    {
+        "year": "",
+        "pics": ["", 
+                 "", 
+                 ""],
+        "subtitles": ["", 
+                      "", 
+                      ""]
+    }
+    
+
+JSON VALIDATOR SITE: 
+https://jsonformatter.curiousconcept.com/
